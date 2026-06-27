@@ -37,13 +37,21 @@
   header {
     background: linear-gradient(135deg, var(--green-dark), var(--green-light));
     color: #fff;
-    padding: 18px 16px 16px;
+    padding: 16px 16px 14px;
     text-align: center;
     position: sticky; top: 0; z-index: 10;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
   }
-  header h1 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -0.3px; }
+  header .htop { display: flex; align-items: center; gap: 8px; justify-content: center; position: relative; }
+  header h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
   header p { margin: 4px 0 0; font-size: 12px; opacity: 0.85; }
+  .back-btn {
+    position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.18); border: none; color: #fff;
+    font-size: 14px; font-weight: 600; padding: 7px 12px; border-radius: 9px; cursor: pointer;
+  }
+  .back-btn:active { background: rgba(255,255,255,0.32); }
+
   .wrap { max-width: 640px; margin: 0 auto; padding: 14px 14px 60px; }
   .card {
     background: var(--card);
@@ -65,6 +73,7 @@
     gap: 10px;
   }
   .field { display: flex; flex-direction: column; gap: 4px; }
+  .field.full { grid-column: 1 / -1; }
   .field label { font-size: 12px; color: var(--muted); font-weight: 600; }
   input[type="number"], input[type="text"] {
     width: 100%;
@@ -95,6 +104,49 @@
   .btn.secondary { background: #eef3ec; color: var(--green-dark); border: 1px solid var(--line); }
   .btn.small { padding: 7px 12px; font-size: 13px; }
   .btn.danger { background: #fbeaea; color: #c0392b; border: 1px solid #f3d3d0; }
+
+  /* 모임 목록 */
+  .empty {
+    text-align: center; color: var(--muted); padding: 30px 10px; font-size: 14px; line-height: 1.7;
+  }
+  .empty .big { font-size: 38px; display: block; margin-bottom: 6px; }
+  .meeting-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 13px;
+    padding: 13px 14px; margin-bottom: 11px; cursor: pointer;
+    transition: transform .08s, box-shadow .15s;
+  }
+  .meeting-item:active { transform: scale(0.99); box-shadow: 0 1px 6px rgba(0,0,0,0.08); }
+  .meeting-icon {
+    width: 44px; height: 44px; border-radius: 12px; flex: 0 0 auto;
+    background: linear-gradient(135deg, var(--green), var(--green-light));
+    display: flex; align-items: center; justify-content: center; font-size: 22px;
+  }
+  .meeting-info { flex: 1; min-width: 0; }
+  .meeting-title { font-weight: 700; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .meeting-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .meeting-del {
+    border: none; background: #f5eeee; color: #b23b3b; flex: 0 0 auto;
+    width: 34px; height: 34px; border-radius: 9px; font-size: 17px; cursor: pointer; line-height: 1;
+  }
+  .meeting-del:active { background: #ebd9d9; }
+  .chevron { color: var(--muted); font-size: 20px; flex: 0 0 auto; }
+
+  /* 상세 - 점수 기준 요약/편집 */
+  .points-summary {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px;
+  }
+  .pchip {
+    font-size: 12px; font-weight: 600; color: var(--green-dark);
+    background: #eef5ec; border: 1px solid var(--line); border-radius: 20px; padding: 4px 10px;
+  }
+  details.pts { margin-top: 4px; }
+  details.pts > summary {
+    list-style: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--green);
+    padding: 4px 0;
+  }
+  details.pts > summary::-webkit-details-marker { display: none; }
+  details.pts[open] > summary { margin-bottom: 8px; }
 
   .team {
     border: 1px solid var(--line);
@@ -156,7 +208,6 @@
     width: 100%; text-align: center; padding: 8px 2px; font-size: 16px;
     border: 1px solid var(--line); border-radius: 8px; background: #fff;
   }
-  .member-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
   .row-btns { display: flex; gap: 8px; margin-top: 4px; }
   .row-btns .btn { flex: 1; }
 
@@ -168,17 +219,13 @@
   .x-btn:active { background: #e6d6d6; }
 
   /* Result */
-  #result { display: none; }
   .podium { display: flex; flex-direction: column; gap: 10px; }
   .res-row {
     display: flex; align-items: center; gap: 12px;
     padding: 13px 14px; border-radius: 12px;
     border: 1px solid var(--line); background: #fafdf9;
   }
-  .res-row.win {
-    background: var(--win-bg); border: 2px solid var(--win-border);
-    box-shadow: 0 2px 10px rgba(212,160,23,0.18);
-  }
+  .res-row.win { background: var(--win-bg); border: 2px solid var(--win-border); box-shadow: 0 2px 10px rgba(212,160,23,0.18); }
   .res-row.tie-win { background: var(--win-bg); border: 2px solid var(--win-border); }
   .res-rank { font-size: 22px; width: 34px; text-align: center; flex: 0 0 auto; }
   .res-info { flex: 1; min-width: 0; }
@@ -192,73 +239,101 @@
     border-radius: 12px; padding: 13px; margin-bottom: 14px;
   }
   .legend { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
-  .sticky-actions {
-    position: sticky; bottom: 0;
-    background: linear-gradient(180deg, rgba(241,245,240,0), var(--bg) 30%);
-    padding: 12px 0 6px; margin-top: 4px;
-  }
+  .saved-tag { font-size: 12px; color: var(--green); font-weight: 600; }
   .hidden { display: none !important; }
 </style>
 </head>
 <body>
 <header>
-  <h1>⛳ 골프 팀 점수 계산기</h1>
-  <p>팀별 점수를 계산하고 승부를 가려보세요</p>
+  <div class="htop">
+    <button class="back-btn hidden" id="backBtn">‹ 목록</button>
+    <div>
+      <h1 id="hTitle">⛳ 골프 팀 점수 계산기</h1>
+    </div>
+  </div>
+  <p id="hSub">모임을 만들고 점수를 기록해보세요</p>
 </header>
 
 <div class="wrap">
 
-  <!-- 설정 -->
-  <div class="card">
-    <h2>⚙️ 설정</h2>
-    <div class="settings-grid">
-      <div class="field">
-        <label>팀 수</label>
-        <input type="number" id="cfgTeams" min="2" max="12" value="2" inputmode="numeric" />
-      </div>
-      <div class="field">
-        <label>팀당 인원 수</label>
-        <input type="number" id="cfgMembers" min="1" max="12" value="4" inputmode="numeric" />
-      </div>
-      <div class="field">
-        <label>🦅 이글 점수</label>
-        <input type="number" id="ptEagle" min="0" value="8" inputmode="numeric" />
-      </div>
-      <div class="field">
-        <label>🐦 버디 점수</label>
-        <input type="number" id="ptBirdie" min="0" value="5" inputmode="numeric" />
-      </div>
-      <div class="field">
-        <label>🟢 파 점수</label>
-        <input type="number" id="ptPar" min="0" value="2" inputmode="numeric" />
-      </div>
-      <div class="field">
-        <label>🔵 보기 점수</label>
-        <input type="number" id="ptBogey" min="0" value="1" inputmode="numeric" />
-      </div>
+  <!-- ===== 화면 1: 모임 목록 ===== -->
+  <section id="view-list">
+    <div class="row-btns" style="margin-bottom:14px;">
+      <button class="btn full" id="newMeetingBtn">＋ 새 모임 만들기</button>
     </div>
-    <div class="row-btns">
-      <button class="btn full" id="buildBtn">팀 구성하기</button>
+    <div id="meetingList"></div>
+  </section>
+
+  <!-- ===== 화면 2: 새 모임 만들기 ===== -->
+  <section id="view-create" class="hidden">
+    <div class="card">
+      <h2>📝 새 모임 만들기</h2>
+      <div class="settings-grid">
+        <div class="field full">
+          <label>모임 제목</label>
+          <input type="text" id="cfgTitle" placeholder="예) 6월 정기 라운딩" />
+        </div>
+        <div class="field">
+          <label>팀 수</label>
+          <input type="number" id="cfgTeams" min="2" max="12" value="2" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label>팀당 인원 수</label>
+          <input type="number" id="cfgMembers" min="1" max="12" value="4" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label>🦅 이글 점수</label>
+          <input type="number" id="ptEagle" min="0" value="8" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label>🐦 버디 점수</label>
+          <input type="number" id="ptBirdie" min="0" value="5" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label>🟢 파 점수</label>
+          <input type="number" id="ptPar" min="0" value="2" inputmode="numeric" />
+        </div>
+        <div class="field">
+          <label>🔵 보기 점수</label>
+          <input type="number" id="ptBogey" min="0" value="1" inputmode="numeric" />
+        </div>
+      </div>
+      <div class="row-btns">
+        <button class="btn secondary" id="createCancelBtn">취소</button>
+        <button class="btn" id="createBtn">모임 만들기</button>
+      </div>
+      <p class="legend">모임을 만들면 목록에 저장되고, 이후 모임을 선택해 인원과 점수를 입력할 수 있어요. 점수 기준은 만든 뒤에도 모임 안에서 바꿀 수 있습니다.</p>
     </div>
-    <p class="legend">팀 수와 인원 수를 정하고 "팀 구성하기"를 누르면 입력 칸이 만들어집니다. 점수 기준은 자유롭게 바꿀 수 있어요.</p>
-  </div>
+  </section>
 
-  <!-- 팀 입력 영역 -->
-  <div id="teams"></div>
-
-  <div class="sticky-actions" id="calcWrap" style="display:none;">
-    <button class="btn full" id="calcBtn">📊 결과 계산하기</button>
-  </div>
-
-  <!-- 결과 -->
-  <div class="card" id="result">
-    <h2>🏆 결과</h2>
-    <div id="winnerBanner"></div>
-    <div class="podium" id="podium"></div>
-    <div class="row-btns" style="margin-top:14px;">
-      <button class="btn secondary full" id="editBtn">◀ 점수 수정</button>
+  <!-- ===== 화면 3: 모임 상세(점수 입력/결과) ===== -->
+  <section id="view-detail" class="hidden">
+    <div class="card" id="detailHead">
+      <h2 id="detailTitle">모임</h2>
+      <div class="points-summary" id="pointsSummary"></div>
+      <details class="pts">
+        <summary>⚙️ 점수 기준 / 팀 이름 수정</summary>
+        <div class="settings-grid">
+          <div class="field"><label>🦅 이글 점수</label><input type="number" class="d-pt" data-k="eagle" min="0" inputmode="numeric" /></div>
+          <div class="field"><label>🐦 버디 점수</label><input type="number" class="d-pt" data-k="birdie" min="0" inputmode="numeric" /></div>
+          <div class="field"><label>🟢 파 점수</label><input type="number" class="d-pt" data-k="par" min="0" inputmode="numeric" /></div>
+          <div class="field"><label>🔵 보기 점수</label><input type="number" class="d-pt" data-k="bogey" min="0" inputmode="numeric" /></div>
+        </div>
+      </details>
     </div>
-  </div>
+
+    <div id="teams"></div>
+
+    <div class="row-btns" style="margin-bottom:14px;">
+      <button class="btn full" id="calcBtn">📊 결과 계산하기</button>
+    </div>
+
+    <div class="card hidden" id="result">
+      <h2>🏆 결과</h2>
+      <div id="winnerBanner"></div>
+      <div class="podium" id="podium"></div>
+    </div>
+  </section>
 
 </div>
 
@@ -267,94 +342,175 @@
   "use strict";
 
   var TEAM_COLORS = ["#2e7d32","#1565c0","#c62828","#6a1b9a","#ef6c00","#00838f","#ad1457","#558b2f","#4527a0","#d84315","#00695c","#37474f"];
+  var STORE_KEY = "golfMeetings_v1";
 
-  var state = { teams: [], points: { eagle: 8, birdie: 5, par: 2, bogey: 1 } };
+  var meetings = [];      // 저장된 모임 목록
+  var current = null;     // 현재 열람 중인 모임 객체
 
   function $(id) { return document.getElementById(id); }
-  function intVal(el, def) {
-    var v = parseInt(el.value, 10);
-    return isNaN(v) ? def : v;
-  }
+  function intVal(el, def) { var v = parseInt(el.value, 10); return isNaN(v) ? def : v; }
   function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+  function escAttr(s) { return String(s==null?"":s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function escHTML(s) { return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
-  function readPoints() {
-    state.points = {
+  /* ---------- 저장소 ---------- */
+  function loadStore() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      meetings = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(meetings)) meetings = [];
+    } catch (e) { meetings = []; }
+  }
+  function saveStore() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(meetings)); }
+    catch (e) { /* private 모드 등: 메모리에만 유지 */ }
+  }
+
+  /* ---------- 화면 전환 ---------- */
+  function showView(name) {
+    $("view-list").classList.toggle("hidden", name !== "list");
+    $("view-create").classList.toggle("hidden", name !== "create");
+    $("view-detail").classList.toggle("hidden", name !== "detail");
+    var onList = name === "list";
+    $("backBtn").classList.toggle("hidden", onList);
+    if (name === "list") {
+      $("hTitle").textContent = "⛳ 골프 팀 점수 계산기";
+      $("hSub").textContent = "모임을 만들고 점수를 기록해보세요";
+    } else if (name === "create") {
+      $("hTitle").textContent = "📝 새 모임";
+      $("hSub").textContent = "모임 정보를 입력하세요";
+    }
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- 점수 계산 ---------- */
+  function memberScore(m, pts) {
+    return m.eagle*pts.eagle + m.birdie*pts.birdie + m.par*pts.par + m.bogey*pts.bogey;
+  }
+  function teamTotal(team, pts) {
+    return team.members.reduce(function (s, m) { return s + memberScore(m, pts); }, 0);
+  }
+
+  /* ---------- 모임 목록 화면 ---------- */
+  function renderList() {
+    var host = $("meetingList");
+    if (!meetings.length) {
+      host.innerHTML = '<div class="empty"><span class="big">⛳</span>아직 만든 모임이 없어요.<br>“＋ 새 모임 만들기”로 시작하세요.</div>';
+      return;
+    }
+    // 최신순
+    var sorted = meetings.slice().sort(function (a, b) { return (b.updatedAt||0) - (a.updatedAt||0); });
+    host.innerHTML = sorted.map(function (mt) {
+      var pts = mt.points;
+      var totalPeople = mt.teams.reduce(function (s, t) { return s + t.members.length; }, 0);
+      var dateStr = formatDate(mt.updatedAt || mt.createdAt);
+      var leader = leaderText(mt);
+      return '<div class="meeting-item" data-id="' + mt.id + '">' +
+        '<div class="meeting-icon">⛳</div>' +
+        '<div class="meeting-info">' +
+          '<div class="meeting-title">' + escHTML(mt.title) + '</div>' +
+          '<div class="meeting-meta">' + mt.teams.length + '팀 · ' + totalPeople + '명 · ' + dateStr + (leader ? ' · ' + leader : '') + '</div>' +
+        '</div>' +
+        '<button class="meeting-del" data-act="del" data-id="' + mt.id + '" title="삭제">🗑</button>' +
+        '<span class="chevron">›</span>' +
+      '</div>';
+    }).join("");
+  }
+
+  function leaderText(mt) {
+    var any = mt.teams.some(function (t) { return teamTotal(t, mt.points) > 0; });
+    if (!any) return "";
+    var best = null;
+    mt.teams.forEach(function (t) {
+      var tot = teamTotal(t, mt.points);
+      if (best === null || tot > best.tot) best = { name: t.name, tot: tot };
+    });
+    return best ? "🏆 " + escHTML(best.name) + " " + best.tot + "점" : "";
+  }
+
+  function formatDate(ts) {
+    if (!ts) return "";
+    var d = new Date(ts);
+    var mm = ("0" + (d.getMonth()+1)).slice(-2);
+    var dd = ("0" + d.getDate()).slice(-2);
+    return (d.getFullYear() + "").slice(2) + "." + mm + "." + dd;
+  }
+
+  /* ---------- 새 모임 생성 ---------- */
+  function startCreate() {
+    $("cfgTitle").value = "";
+    $("cfgTeams").value = 2;
+    $("cfgMembers").value = 4;
+    $("ptEagle").value = 8; $("ptBirdie").value = 5; $("ptPar").value = 2; $("ptBogey").value = 1;
+    showView("create");
+    $("cfgTitle").focus();
+  }
+
+  function createMeeting() {
+    var title = ($("cfgTitle").value || "").trim();
+    if (!title) { alert("모임 제목을 입력해주세요."); $("cfgTitle").focus(); return; }
+    var nTeams = clamp(intVal($("cfgTeams"), 2), 2, 12);
+    var nMembers = clamp(intVal($("cfgMembers"), 4), 1, 12);
+    var pts = {
       eagle: Math.max(0, intVal($("ptEagle"), 8)),
       birdie: Math.max(0, intVal($("ptBirdie"), 5)),
       par: Math.max(0, intVal($("ptPar"), 2)),
       bogey: Math.max(0, intVal($("ptBogey"), 1))
     };
-  }
-
-  // 현재 화면 입력값을 state로 수집 (있을 때만)
-  function harvestInputs() {
-    var teamEls = document.querySelectorAll(".team");
-    teamEls.forEach(function (tEl, ti) {
-      if (!state.teams[ti]) return;
-      var nameEl = tEl.querySelector(".team-name");
-      if (nameEl) state.teams[ti].name = nameEl.value;
-      var memEls = tEl.querySelectorAll(".member");
-      memEls.forEach(function (mEl, mi) {
-        var m = state.teams[ti].members[mi];
-        if (!m) return;
-        m.name = mEl.querySelector(".member-name").value;
-        m.eagle = Math.max(0, intVal(mEl.querySelector(".in-eagle"), 0));
-        m.birdie = Math.max(0, intVal(mEl.querySelector(".in-birdie"), 0));
-        m.par = Math.max(0, intVal(mEl.querySelector(".in-par"), 0));
-        m.bogey = Math.max(0, intVal(mEl.querySelector(".in-bogey"), 0));
-      });
-    });
-  }
-
-  function buildTeams() {
-    var nTeams = clamp(intVal($("cfgTeams"), 2), 2, 12);
-    var nMembers = clamp(intVal($("cfgMembers"), 4), 1, 12);
-    $("cfgTeams").value = nTeams;
-    $("cfgMembers").value = nMembers;
-    readPoints();
-
     var teams = [];
     for (var t = 0; t < nTeams; t++) {
       var members = [];
-      for (var m = 0; m < nMembers; m++) {
-        members.push({ name: "", eagle: 0, birdie: 0, par: 0, bogey: 0 });
-      }
+      for (var m = 0; m < nMembers; m++) members.push({ name: "", eagle: 0, birdie: 0, par: 0, bogey: 0 });
       teams.push({ name: "팀 " + (t + 1), members: members });
     }
-    state.teams = teams;
-    renderTeams();
-    $("result").style.display = "none";
-    $("calcWrap").style.display = "block";
-    $("teams").scrollIntoView({ behavior: "smooth", block: "start" });
+    var now = Date.now();
+    var meeting = { id: "m" + now + Math.floor(Math.random()*1000), title: title, points: pts, teams: teams, createdAt: now, updatedAt: now };
+    meetings.push(meeting);
+    saveStore();
+    openMeeting(meeting.id);
   }
 
-  function memberScore(m) {
-    return m.eagle * state.points.eagle + m.birdie * state.points.birdie +
-           m.par * state.points.par + m.bogey * state.points.bogey;
+  /* ---------- 모임 상세(점수 입력) ---------- */
+  function openMeeting(id) {
+    current = meetings.filter(function (m) { return m.id === id; })[0] || null;
+    if (!current) { showView("list"); return; }
+    $("hTitle").textContent = "⛳ 점수 입력";
+    $("hSub").textContent = current.title;
+    $("detailTitle").textContent = "📋 " + current.title;
+    // 점수기준 편집 입력값 채우기
+    document.querySelectorAll(".d-pt").forEach(function (el) {
+      el.value = current.points[el.getAttribute("data-k")];
+    });
+    renderPointsSummary();
+    renderTeams();
+    $("result").classList.add("hidden");
+    showView("detail");
   }
-  function teamTotal(team) {
-    return team.members.reduce(function (s, m) { return s + memberScore(m); }, 0);
+
+  function renderPointsSummary() {
+    var p = current.points;
+    $("pointsSummary").innerHTML =
+      '<span class="pchip">🦅 이글 ' + p.eagle + '</span>' +
+      '<span class="pchip">🐦 버디 ' + p.birdie + '</span>' +
+      '<span class="pchip">🟢 파 ' + p.par + '</span>' +
+      '<span class="pchip">🔵 보기 ' + p.bogey + '</span>';
   }
 
   function statBlock(cls, color, label, val) {
     return '<div class="stat">' +
       '<label><span class="dot" style="background:' + color + '"></span>' + label + '</label>' +
       '<input type="number" class="' + cls + '" min="0" inputmode="numeric" value="' + val + '" />' +
-      '</div>';
+    '</div>';
   }
 
   function renderTeams() {
     var host = $("teams");
-    host.innerHTML = "";
-    state.teams.forEach(function (team, ti) {
+    host.innerHTML = current.teams.map(function (team, ti) {
       var color = TEAM_COLORS[ti % TEAM_COLORS.length];
-      var teamEl = document.createElement("div");
-      teamEl.className = "team";
-
       var membersHTML = team.members.map(function (m, mi) {
         return '<div class="member" data-mi="' + mi + '">' +
           '<div class="member-top">' +
-            '<input type="text" class="member-name" placeholder="이름 ' + (mi + 1) + '" value="' + escapeAttr(m.name) + '" />' +
+            '<input type="text" class="member-name" placeholder="이름 ' + (mi+1) + '" value="' + escAttr(m.name) + '" />' +
             '<span class="member-score">0점</span>' +
             '<button class="x-btn" data-act="delMember" title="삭제">×</button>' +
           '</div>' +
@@ -366,87 +522,75 @@
           '</div>' +
         '</div>';
       }).join("");
-
-      teamEl.innerHTML =
+      return '<div class="team">' +
         '<div class="team-head">' +
-          '<span class="badge" style="background:' + color + '">' + (ti + 1) + '</span>' +
-          '<input type="text" class="team-name" value="' + escapeAttr(team.name) + '" />' +
+          '<span class="badge" style="background:' + color + '">' + (ti+1) + '</span>' +
+          '<input type="text" class="team-name" value="' + escAttr(team.name) + '" />' +
           '<span class="team-total">0점</span>' +
         '</div>' +
-        '<div class="team-body">' +
-          membersHTML +
-          '<div class="row-btns">' +
-            '<button class="btn secondary small" data-act="addMember">+ 인원 추가</button>' +
-          '</div>' +
-        '</div>';
-
-      host.appendChild(teamEl);
-    });
-    attachLiveUpdates();
+        '<div class="team-body">' + membersHTML +
+          '<div class="row-btns"><button class="btn secondary small" data-act="addMember">+ 인원 추가</button></div>' +
+        '</div>' +
+      '</div>';
+    }).join("");
     updateLiveTotals();
   }
 
-  function escapeAttr(s) {
-    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  }
-
-  function attachLiveUpdates() {
-    var host = $("teams");
-    host.oninput = function () { harvestInputs(); updateLiveTotals(); };
-    host.onclick = function (e) {
-      var btn = e.target.closest("button[data-act]");
-      if (!btn) return;
-      var act = btn.getAttribute("data-act");
-      var teamEl = btn.closest(".team");
-      var teamEls = Array.prototype.slice.call(document.querySelectorAll(".team"));
-      var ti = teamEls.indexOf(teamEl);
-      if (ti < 0) return;
-      harvestInputs();
-      if (act === "addMember") {
-        state.teams[ti].members.push({ name: "", eagle: 0, birdie: 0, par: 0, bogey: 0 });
-        renderTeams();
-      } else if (act === "delMember") {
-        var memEl = btn.closest(".member");
-        var mi = parseInt(memEl.getAttribute("data-mi"), 10);
-        if (state.teams[ti].members.length <= 1) { alert("팀에는 최소 1명이 필요합니다."); return; }
-        state.teams[ti].members.splice(mi, 1);
-        renderTeams();
-      }
-    };
+  // 화면 입력값 → current 모임 객체로 수집
+  function harvestInputs() {
+    if (!current) return;
+    var teamEls = document.querySelectorAll("#teams .team");
+    teamEls.forEach(function (tEl, ti) {
+      var team = current.teams[ti];
+      if (!team) return;
+      var nameEl = tEl.querySelector(".team-name");
+      if (nameEl) team.name = nameEl.value;
+      tEl.querySelectorAll(".member").forEach(function (mEl, mi) {
+        var m = team.members[mi];
+        if (!m) return;
+        m.name = mEl.querySelector(".member-name").value;
+        m.eagle = Math.max(0, intVal(mEl.querySelector(".in-eagle"), 0));
+        m.birdie = Math.max(0, intVal(mEl.querySelector(".in-birdie"), 0));
+        m.par = Math.max(0, intVal(mEl.querySelector(".in-par"), 0));
+        m.bogey = Math.max(0, intVal(mEl.querySelector(".in-bogey"), 0));
+      });
+    });
   }
 
   function updateLiveTotals() {
-    var teamEls = document.querySelectorAll(".team");
-    teamEls.forEach(function (tEl, ti) {
-      var team = state.teams[ti];
+    var pts = current.points;
+    document.querySelectorAll("#teams .team").forEach(function (tEl, ti) {
+      var team = current.teams[ti];
       if (!team) return;
-      var memEls = tEl.querySelectorAll(".member");
-      memEls.forEach(function (mEl, mi) {
-        var sc = memberScore(team.members[mi]);
+      tEl.querySelectorAll(".member").forEach(function (mEl, mi) {
         var scEl = mEl.querySelector(".member-score");
-        if (scEl) scEl.textContent = sc + "점";
+        if (scEl) scEl.textContent = memberScore(team.members[mi], pts) + "점";
       });
       var totEl = tEl.querySelector(".team-total");
-      if (totEl) totEl.textContent = teamTotal(team) + "점";
+      if (totEl) totEl.textContent = teamTotal(team, pts) + "점";
     });
+  }
+
+  function persistCurrent() {
+    if (!current) return;
+    current.updatedAt = Date.now();
+    saveStore();
   }
 
   function calculate() {
     harvestInputs();
-    readPoints();
     updateLiveTotals();
+    persistCurrent();
 
-    var results = state.teams.map(function (team, ti) {
+    var pts = current.points;
+    var results = current.teams.map(function (team, ti) {
       return {
-        name: team.name || ("팀 " + (ti + 1)),
+        name: team.name || ("팀 " + (ti+1)),
         index: ti,
-        total: teamTotal(team),
-        members: team.members.map(function (m, mi) {
-          return { name: m.name || ("이름 " + (mi + 1)), score: memberScore(m) };
-        })
+        total: teamTotal(team, pts),
+        members: team.members.map(function (m, mi) { return { name: m.name || ("이름 " + (mi+1)), score: memberScore(m, pts) }; })
       };
     });
-
     results.sort(function (a, b) { return b.total - a.total; });
 
     var topScore = results.length ? results[0].total : 0;
@@ -454,59 +598,116 @@
     var isTie = winners.length > 1;
 
     var banner = $("winnerBanner");
-    if (isTie) {
-      banner.innerHTML = "🤝 무승부! " + winners.map(function (w) { return escapeHTML(w.name); }).join(", ") + " (" + topScore + "점)";
+    if (topScore === 0) {
+      banner.innerHTML = "점수를 입력하면 승부가 표시됩니다.";
+    } else if (isTie) {
+      banner.innerHTML = "🤝 무승부! " + winners.map(function (w) { return escHTML(w.name); }).join(", ") + " (" + topScore + "점)";
     } else {
-      banner.innerHTML = "🏆 우승: <strong>" + escapeHTML(winners[0].name) + "</strong> (" + topScore + "점)";
+      banner.innerHTML = "🏆 우승: <strong>" + escHTML(winners[0].name) + "</strong> (" + topScore + "점)";
     }
 
-    var medals = ["🥇", "🥈", "🥉"];
+    var medals = ["🥇","🥈","🥉"];
     var podium = $("podium");
     podium.innerHTML = "";
-    var rank = 0, prevScore = null;
+    var rank = 0, prev = null;
     results.forEach(function (r, i) {
-      if (prevScore === null || r.total !== prevScore) { rank = i + 1; prevScore = r.total; }
+      if (prev === null || r.total !== prev) { rank = i + 1; prev = r.total; }
       var color = TEAM_COLORS[r.index % TEAM_COLORS.length];
-      var isWin = r.total === topScore;
-      var rankIcon = rank <= 3 ? medals[rank - 1] : (rank + "위");
-      var memberLine = r.members.map(function (m) { return escapeHTML(m.name) + " " + m.score + "점"; }).join(" · ");
+      var isWin = topScore > 0 && r.total === topScore;
+      var rankIcon = rank <= 3 ? medals[rank-1] : (rank + "위");
+      var memberLine = r.members.map(function (m) { return escHTML(m.name) + " " + m.score + "점"; }).join(" · ");
       var row = document.createElement("div");
       row.className = "res-row" + (isWin ? (isTie ? " tie-win" : " win") : "");
       row.innerHTML =
         '<div class="res-rank">' + rankIcon + '</div>' +
         '<div class="res-info">' +
-          '<div class="res-name"><span class="dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + color + '"></span>' + escapeHTML(r.name) + '</div>' +
+          '<div class="res-name"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + color + '"></span>' + escHTML(r.name) + '</div>' +
           '<div class="res-members">' + memberLine + '</div>' +
         '</div>' +
         '<div class="res-pts">' + r.total + '<span> 점</span></div>';
       podium.appendChild(row);
     });
 
-    $("result").style.display = "block";
+    $("result").classList.remove("hidden");
     $("result").scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  function escapeHTML(s) {
-    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  }
-
-  // 점수 기준이 바뀌면 실시간 반영
-  ["ptEagle", "ptBirdie", "ptPar", "ptBogey"].forEach(function (id) {
-    $(id).addEventListener("input", function () {
-      readPoints();
-      if (state.teams.length) { harvestInputs(); updateLiveTotals(); }
-    });
+  /* ---------- 이벤트 바인딩 ---------- */
+  // 목록 화면
+  $("newMeetingBtn").addEventListener("click", startCreate);
+  $("meetingList").addEventListener("click", function (e) {
+    var del = e.target.closest('[data-act="del"]');
+    if (del) {
+      e.stopPropagation();
+      var id = del.getAttribute("data-id");
+      var mt = meetings.filter(function (m) { return m.id === id; })[0];
+      if (mt && confirm('"' + mt.title + '" 모임을 삭제할까요?')) {
+        meetings = meetings.filter(function (m) { return m.id !== id; });
+        saveStore();
+        renderList();
+      }
+      return;
+    }
+    var item = e.target.closest(".meeting-item");
+    if (item) openMeeting(item.getAttribute("data-id"));
   });
 
-  $("buildBtn").addEventListener("click", buildTeams);
+  // 새 모임 화면
+  $("createBtn").addEventListener("click", createMeeting);
+  $("createCancelBtn").addEventListener("click", function () { showView("list"); renderList(); });
+
+  // 상세 화면 - 뒤로
+  $("backBtn").addEventListener("click", function () {
+    if (current) { harvestInputs(); persistCurrent(); }
+    current = null;
+    renderList();
+    showView("list");
+  });
+
+  // 상세 - 팀/멤버 입력 (자동 저장)
+  var saveTimer = null;
+  $("teams").addEventListener("input", function () {
+    harvestInputs();
+    updateLiveTotals();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(persistCurrent, 400);
+  });
+  $("teams").addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-act]");
+    if (!btn) return;
+    var teamEls = Array.prototype.slice.call(document.querySelectorAll("#teams .team"));
+    var ti = teamEls.indexOf(btn.closest(".team"));
+    if (ti < 0) return;
+    harvestInputs();
+    var act = btn.getAttribute("data-act");
+    if (act === "addMember") {
+      current.teams[ti].members.push({ name: "", eagle: 0, birdie: 0, par: 0, bogey: 0 });
+      renderTeams(); persistCurrent();
+    } else if (act === "delMember") {
+      var mi = parseInt(btn.closest(".member").getAttribute("data-mi"), 10);
+      if (current.teams[ti].members.length <= 1) { alert("팀에는 최소 1명이 필요합니다."); return; }
+      current.teams[ti].members.splice(mi, 1);
+      renderTeams(); persistCurrent();
+    }
+  });
+
+  // 상세 - 점수 기준 수정 (자동 저장 + 즉시 반영)
+  $("detailHead").addEventListener("input", function (e) {
+    var el = e.target.closest(".d-pt");
+    if (!el || !current) return;
+    current.points[el.getAttribute("data-k")] = Math.max(0, intVal(el, 0));
+    renderPointsSummary();
+    updateLiveTotals();
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(persistCurrent, 400);
+  });
+
   $("calcBtn").addEventListener("click", calculate);
-  $("editBtn").addEventListener("click", function () {
-    $("result").style.display = "none";
-    $("teams").scrollIntoView({ behavior: "smooth", block: "start" });
-  });
 
-  // 초기 구성
-  buildTeams();
+  /* ---------- 시작 ---------- */
+  loadStore();
+  renderList();
+  showView("list");
 })();
 </script>
 </body>
