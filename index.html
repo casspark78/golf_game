@@ -168,47 +168,46 @@
   }
   .team-head input.team-name {
     flex: 1; font-weight: 700; font-size: 15px;
-    border: none; background: transparent; padding: 4px 0;
+    border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 7px 9px; min-width: 0;
   }
-  .team-head input.team-name:focus { background: #fff; border-radius: 6px; padding: 4px 6px; }
+  .team-head input.team-name:focus { border-color: var(--green-light); }
   .team-total {
     font-size: 13px; font-weight: 700; color: var(--green-dark);
     background: #e3f0e0; padding: 4px 9px; border-radius: 20px; white-space: nowrap;
   }
   .team-body { padding: 10px 12px 12px; }
 
-  .member {
-    border: 1px solid var(--line);
-    border-radius: 11px;
-    padding: 10px;
-    margin-bottom: 10px;
-    background: #fcfdfb;
-  }
-  .member-top { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
-  .member-top input.member-name {
-    flex: 1; font-size: 15px; font-weight: 600;
-    padding: 9px 10px; border: 1px solid var(--line); border-radius: 9px; background: #fff;
-  }
-  .member-score {
-    font-size: 13px; font-weight: 700; color: var(--green);
-    white-space: nowrap; min-width: 46px; text-align: right;
-  }
-  .stats {
+  /* 멤버 한 줄 입력 */
+  .member-head, .member-row {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 7px;
+    grid-template-columns: minmax(48px, 1fr) 30px 30px 30px 30px 36px 24px;
+    gap: 4px;
+    align-items: center;
   }
-  .stat { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-  .stat label {
-    font-size: 11px; font-weight: 700; color: var(--muted);
-    display: flex; align-items: center; gap: 2px;
+  .member-head {
+    padding: 2px 0 6px;
+    font-size: 11px; font-weight: 700; color: var(--muted); text-align: center;
   }
-  .stat .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-  .stat input {
-    width: 100%; text-align: center; padding: 8px 2px; font-size: 16px;
+  .member-head .h-name { text-align: left; padding-left: 2px; }
+  .member-row { margin-bottom: 6px; }
+  .member-row input.member-name {
+    width: 100%; min-width: 0;
+    font-size: 16px; font-weight: 600; padding: 8px 8px;
+    border: 1px solid var(--line); border-radius: 9px; background: #fff;
+  }
+  .member-row input.num {
+    width: 100%; min-width: 0; text-align: center;
+    padding: 8px 1px; font-size: 16px;
     border: 1px solid var(--line); border-radius: 8px; background: #fff;
   }
+  .member-score {
+    font-size: 14px; font-weight: 800; color: var(--green);
+    text-align: center; white-space: nowrap;
+  }
+  .member-row .x-btn { width: 24px; height: 30px; font-size: 15px; }
   .row-btns { display: flex; gap: 8px; margin-top: 4px; }
+  .team-name-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 2px; }
+  .team-name-list input { font-size: 15px; }
   .row-btns .btn { flex: 1; }
 
   .x-btn {
@@ -281,6 +280,7 @@
           <label>팀당 인원 수</label>
           <input type="number" id="cfgMembers" min="1" max="12" value="4" inputmode="numeric" />
         </div>
+        <div class="field full" id="teamNamesWrap"></div>
         <div class="field">
           <label>🦅 이글 점수</label>
           <input type="number" id="ptEagle" min="0" value="8" inputmode="numeric" />
@@ -437,11 +437,27 @@
   }
 
   /* ---------- 새 모임 생성 ---------- */
+  function renderCreateTeamNames() {
+    var n = clamp(intVal($("cfgTeams"), 2), 2, 12);
+    // 기존 입력값 보존
+    var prev = {};
+    document.querySelectorAll("#teamNamesWrap .ct-name").forEach(function (el) {
+      prev[el.getAttribute("data-ti")] = el.value;
+    });
+    var inputs = "";
+    for (var i = 0; i < n; i++) {
+      var v = prev[i] != null ? prev[i] : "";
+      inputs += '<input type="text" class="ct-name" data-ti="' + i + '" placeholder="팀 ' + (i+1) + '" value="' + escAttr(v) + '" />';
+    }
+    $("teamNamesWrap").innerHTML = '<label>각 팀 이름 (선택)</label><div class="team-name-list">' + inputs + '</div>';
+  }
+
   function startCreate() {
     $("cfgTitle").value = "";
     $("cfgTeams").value = 2;
     $("cfgMembers").value = 4;
     $("ptEagle").value = 8; $("ptBirdie").value = 5; $("ptPar").value = 2; $("ptBogey").value = 1;
+    renderCreateTeamNames();
     showView("create");
     $("cfgTitle").focus();
   }
@@ -451,6 +467,11 @@
     if (!title) { alert("모임 제목을 입력해주세요."); $("cfgTitle").focus(); return; }
     var nTeams = clamp(intVal($("cfgTeams"), 2), 2, 12);
     var nMembers = clamp(intVal($("cfgMembers"), 4), 1, 12);
+    // 입력한 팀 이름 수집
+    var teamNames = [];
+    document.querySelectorAll("#teamNamesWrap .ct-name").forEach(function (el) {
+      teamNames[parseInt(el.getAttribute("data-ti"), 10)] = (el.value || "").trim();
+    });
     var pts = {
       eagle: Math.max(0, intVal($("ptEagle"), 8)),
       birdie: Math.max(0, intVal($("ptBirdie"), 5)),
@@ -461,7 +482,7 @@
     for (var t = 0; t < nTeams; t++) {
       var members = [];
       for (var m = 0; m < nMembers; m++) members.push({ name: "", eagle: 0, birdie: 0, par: 0, bogey: 0 });
-      teams.push({ name: "팀 " + (t + 1), members: members });
+      teams.push({ name: teamNames[t] || ("팀 " + (t + 1)), members: members });
     }
     var now = Date.now();
     var meeting = { id: "m" + now + Math.floor(Math.random()*1000), title: title, points: pts, teams: teams, createdAt: now, updatedAt: now };
@@ -496,30 +517,34 @@
       '<span class="pchip">🔵 보기 ' + p.bogey + '</span>';
   }
 
-  function statBlock(cls, color, label, val) {
-    return '<div class="stat">' +
-      '<label><span class="dot" style="background:' + color + '"></span>' + label + '</label>' +
-      '<input type="number" class="' + cls + '" min="0" inputmode="numeric" value="' + val + '" />' +
-    '</div>';
+  function numInput(cls, val) {
+    return '<input type="number" class="num ' + cls + '" min="0" inputmode="numeric" value="' + val + '" />';
   }
+
+  var MEMBER_HEAD =
+    '<div class="member-head">' +
+      '<span class="h-name">이름</span>' +
+      '<span style="color:#c79100">이글</span>' +
+      '<span style="color:#1976d2">버디</span>' +
+      '<span style="color:#2e7d32">파</span>' +
+      '<span style="color:#7b8a99">보기</span>' +
+      '<span>점수</span>' +
+      '<span></span>' +
+    '</div>';
 
   function renderTeams() {
     var host = $("teams");
     host.innerHTML = current.teams.map(function (team, ti) {
       var color = TEAM_COLORS[ti % TEAM_COLORS.length];
       var membersHTML = team.members.map(function (m, mi) {
-        return '<div class="member" data-mi="' + mi + '">' +
-          '<div class="member-top">' +
-            '<input type="text" class="member-name" placeholder="이름 ' + (mi+1) + '" value="' + escAttr(m.name) + '" />' +
-            '<span class="member-score">0점</span>' +
-            '<button class="x-btn" data-act="delMember" title="삭제">×</button>' +
-          '</div>' +
-          '<div class="stats">' +
-            statBlock("in-eagle", "#d4a017", "이글", m.eagle) +
-            statBlock("in-birdie", "#1976d2", "버디", m.birdie) +
-            statBlock("in-par", "#2e7d32", "파", m.par) +
-            statBlock("in-bogey", "#7b8a99", "보기", m.bogey) +
-          '</div>' +
+        return '<div class="member-row" data-mi="' + mi + '">' +
+          '<input type="text" class="member-name" placeholder="이름 ' + (mi+1) + '" value="' + escAttr(m.name) + '" />' +
+          numInput("in-eagle", m.eagle) +
+          numInput("in-birdie", m.birdie) +
+          numInput("in-par", m.par) +
+          numInput("in-bogey", m.bogey) +
+          '<span class="member-score">0</span>' +
+          '<button class="x-btn" data-act="delMember" title="삭제">×</button>' +
         '</div>';
       }).join("");
       return '<div class="team">' +
@@ -528,7 +553,7 @@
           '<input type="text" class="team-name" value="' + escAttr(team.name) + '" />' +
           '<span class="team-total">0점</span>' +
         '</div>' +
-        '<div class="team-body">' + membersHTML +
+        '<div class="team-body">' + MEMBER_HEAD + membersHTML +
           '<div class="row-btns"><button class="btn secondary small" data-act="addMember">+ 인원 추가</button></div>' +
         '</div>' +
       '</div>';
@@ -545,7 +570,7 @@
       if (!team) return;
       var nameEl = tEl.querySelector(".team-name");
       if (nameEl) team.name = nameEl.value;
-      tEl.querySelectorAll(".member").forEach(function (mEl, mi) {
+      tEl.querySelectorAll(".member-row").forEach(function (mEl, mi) {
         var m = team.members[mi];
         if (!m) return;
         m.name = mEl.querySelector(".member-name").value;
@@ -562,9 +587,9 @@
     document.querySelectorAll("#teams .team").forEach(function (tEl, ti) {
       var team = current.teams[ti];
       if (!team) return;
-      tEl.querySelectorAll(".member").forEach(function (mEl, mi) {
+      tEl.querySelectorAll(".member-row").forEach(function (mEl, mi) {
         var scEl = mEl.querySelector(".member-score");
-        if (scEl) scEl.textContent = memberScore(team.members[mi], pts) + "점";
+        if (scEl) scEl.textContent = memberScore(team.members[mi], pts);
       });
       var totEl = tEl.querySelector(".team-total");
       if (totEl) totEl.textContent = teamTotal(team, pts) + "점";
@@ -655,6 +680,7 @@
   // 새 모임 화면
   $("createBtn").addEventListener("click", createMeeting);
   $("createCancelBtn").addEventListener("click", function () { showView("list"); renderList(); });
+  $("cfgTeams").addEventListener("input", renderCreateTeamNames);
 
   // 상세 화면 - 뒤로
   $("backBtn").addEventListener("click", function () {
@@ -684,7 +710,7 @@
       current.teams[ti].members.push({ name: "", eagle: 0, birdie: 0, par: 0, bogey: 0 });
       renderTeams(); persistCurrent();
     } else if (act === "delMember") {
-      var mi = parseInt(btn.closest(".member").getAttribute("data-mi"), 10);
+      var mi = parseInt(btn.closest(".member-row").getAttribute("data-mi"), 10);
       if (current.teams[ti].members.length <= 1) { alert("팀에는 최소 1명이 필요합니다."); return; }
       current.teams[ti].members.splice(mi, 1);
       renderTeams(); persistCurrent();
