@@ -518,7 +518,8 @@
   }
 
   function numInput(cls, val) {
-    return '<input type="number" class="num ' + cls + '" min="0" inputmode="numeric" value="' + val + '" />';
+    var v = (val === 0 || val == null) ? "" : val;
+    return '<input type="text" class="num ' + cls + '" inputmode="numeric" pattern="[0-9]*" placeholder="0" value="' + v + '" />';
   }
 
   var MEMBER_HEAD =
@@ -690,9 +691,22 @@
     showView("list");
   });
 
+  // 상세 - 점수 칸을 누르면 기존 값을 전체 선택해 바로 덮어쓸 수 있게
+  $("teams").addEventListener("focusin", function (e) {
+    var el = e.target;
+    if (el && el.classList && el.classList.contains("num")) {
+      setTimeout(function () { try { el.select(); } catch (_) {} }, 0);
+    }
+  });
+
   // 상세 - 팀/멤버 입력 (자동 저장)
   var saveTimer = null;
-  $("teams").addEventListener("input", function () {
+  $("teams").addEventListener("input", function (e) {
+    var el = e.target;
+    if (el && el.classList && el.classList.contains("num")) {
+      var clean = el.value.replace(/[^0-9]/g, "");
+      if (clean !== el.value) el.value = clean;
+    }
     harvestInputs();
     updateLiveTotals();
     clearTimeout(saveTimer);
