@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="골프 점수" />
+<meta name="theme-color" content="#1b5e20" />
+<link rel="manifest" href="manifest.json" />
+<title>골프 팀 점수 계산기</title>
+<style>
+  :root {
+    --green-dark: #1b5e20;
+    --green: #2e7d32;
+    --green-light: #43a047;
+    --bg: #f1f5f0;
+    --card: #ffffff;
+    --line: #d8e2d6;
+    --text: #1c2a1a;
+    --muted: #6b7d68;
+    --gold: #d4a017;
+    --win-bg: #fff8e1;
+    --win-border: #f0c419;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  header {
+    background: linear-gradient(135deg, var(--green-dark), var(--green-light));
+    color: #fff;
+    padding: 18px 16px 16px;
+    text-align: center;
+    position: sticky; top: 0; z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  header h1 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -0.3px; }
+  header p { margin: 4px 0 0; font-size: 12px; opacity: 0.85; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 14px 14px 60px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .card h2 {
+    margin: 0 0 12px;
+    font-size: 15px;
+    color: var(--green-dark);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .settings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: var(--muted); font-weight: 600; }
+  input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 11px 10px;
+    font-size: 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fafdf9;
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s;
+  }
+  input:focus { border-color: var(--green-light); background: #fff; }
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    border: none; cursor: pointer;
+    font-size: 15px; font-weight: 600;
+    padding: 12px 16px; border-radius: 11px;
+    background: var(--green); color: #fff;
+    transition: transform .08s, background .15s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn.full { width: 100%; }
+  .btn.secondary { background: #eef3ec; color: var(--green-dark); border: 1px solid var(--line); }
+  .btn.small { padding: 7px 12px; font-size: 13px; }
+  .btn.danger { background: #fbeaea; color: #c0392b; border: 1px solid #f3d3d0; }
+
+  .team {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    background: var(--card);
+  }
+  .team-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 14px;
+    background: #f4f9f2;
+    border-bottom: 1px solid var(--line);
+  }
+  .team-head .badge {
+    width: 26px; height: 26px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 13px; font-weight: 700; flex: 0 0 auto;
+  }
+  .team-head input.team-name {
+    flex: 1; font-weight: 700; font-size: 15px;
+    border: none; background: transparent; padding: 4px 0;
+  }
+  .team-head input.team-name:focus { background: #fff; border-radius: 6px; padding: 4px 6px; }
+  .team-total {
+    font-size: 13px; font-weight: 700; color: var(--green-dark);
+    background: #e3f0e0; padding: 4px 9px; border-radius: 20px; white-space: nowrap;
+  }
+  .team-body { padding: 10px 12px 12px; }
+
+  .member {
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #fcfdfb;
+  }
+  .member-top { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+  .member-top input.member-name {
+    flex: 1; font-size: 15px; font-weight: 600;
+    padding: 9px 10px; border: 1px solid var(--line); border-radius: 9px; background: #fff;
+  }
+  .member-score {
+    font-size: 13px; font-weight: 700; color: var(--green);
+    white-space: nowrap; min-width: 46px; text-align: right;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 7px;
+  }
+  .stat { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .stat label {
+    font-size: 11px; font-weight: 700; color: var(--muted);
+    display: flex; align-items: center; gap: 2px;
+  }
+  .stat .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .stat input {
+    width: 100%; text-align: center; padding: 8px 2px; font-size: 16px;
+    border: 1px solid var(--line); border-radius: 8px; background: #fff;
+  }
+  .member-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+  .row-btns { display: flex; gap: 8px; margin-top: 4px; }
+  .row-btns .btn { flex: 1; }
+
+  .x-btn {
+    border: none; background: #f1eded; color: #b23b3b;
+    width: 28px; height: 28px; border-radius: 8px; font-size: 16px;
+    cursor: pointer; flex: 0 0 auto; line-height: 1;
+  }
+  .x-btn:active { background: #e6d6d6; }
+
+  /* Result */
+  #result { display: none; }
+  .podium { display: flex; flex-direction: column; gap: 10px; }
+  .res-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 14px; border-radius: 12px;
+    border: 1px solid var(--line); background: #fafdf9;
+  }
+  .res-row.win {
+    background: var(--win-bg); border: 2px solid var(--win-border);
+    box-shadow: 0 2px 10px rgba(212,160,23,0.18);
+  }
+  .res-row.tie-win { background: var(--win-bg); border: 2px solid var(--win-border); }
+  .res-rank { font-size: 22px; width: 34px; text-align: center; flex: 0 0 auto; }
+  .res-info { flex: 1; min-width: 0; }
+  .res-name { font-weight: 700; font-size: 16px; display: flex; align-items: center; gap: 6px; }
+  .res-members { font-size: 12px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; }
+  .res-pts { font-size: 20px; font-weight: 800; color: var(--green-dark); white-space: nowrap; }
+  .res-pts span { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .winner-banner {
+    text-align: center; font-size: 17px; font-weight: 800; color: var(--green-dark);
+    background: var(--win-bg); border: 1px solid var(--win-border);
+    border-radius: 12px; padding: 13px; margin-bottom: 14px;
+  }
+  .legend { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
+  .sticky-actions {
+    position: sticky; bottom: 0;
+    background: linear-gradient(180deg, rgba(241,245,240,0), var(--bg) 30%);
+    padding: 12px 0 6px; margin-top: 4px;
+  }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>⛳ 골프 팀 점수 계산기</h1>
+  <p>팀별 점수를 계산하고 승부를 가려보세요</p>
+</header>
+
+<div class="wrap">
+
+  <!-- 설정 -->
+  <div class="card">
+    <h2>⚙️ 설정</h2>
+    <div class="settings-grid">
+      <div class="field">
+        <label>팀 수</label>
+        <input type="number" id="cfgTeams" min="2" max="12" value="2" inputmode="numeric" />
+      </div>
+      <div class="field">
+        <label>팀당 인원 수</label>
+        <input type="number" id="cfgMembers" min="1" max="12" value="4" inputmode="numeric" />
+      </div>
+      <div class="field">
+        <label>🦅 이글 점수</label>
+        <input type="number" id="ptEagle" min="0" value="8" inputmode="numeric" />
+      </div>
+      <div class="field">
+        <label>🐦 버디 점수</label>
+        <input type="number" id="ptBirdie" min="0" value="5" inputmode="numeric" />
+      </div>
+      <div class="field">
+        <label>🟢 파 점수</label>
+        <input type="number" id="ptPar" min="0" value="2" inputmode="numeric" />
+      </div>
+      <div class="field">
+        <label>🔵 보기 점수</label>
+        <input type="number" id="ptBogey" min="0" value="1" inputmode="numeric" />
+      </div>
+    </div>
+    <div class="row-btns">
+      <button class="btn full" id="buildBtn">팀 구성하기</button>
+    </div>
+    <p class="legend">팀 수와 인원 수를 정하고 "팀 구성하기"를 누르면 입력 칸이 만들어집니다. 점수 기준은 자유롭게 바꿀 수 있어요.</p>
+  </div>
+
+  <!-- 팀 입력 영역 -->
+  <div id="teams"></div>
+
+  <div class="sticky-actions" id="calcWrap" style="display:none;">
+    <button class="btn full" id="calcBtn">📊 결과 계산하기</button>
+  </div>
+
+  <!-- 결과 -->
+  <div class="card" id="result">
+    <h2>🏆 결과</h2>
+    <div id="winnerBanner"></div>
+    <div class="podium" id="podium"></div>
+    <div class="row-btns" style="margin-top:14px;">
+      <button class="btn secondary full" id="editBtn">◀ 점수 수정</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var TEAM_COLORS = ["#2e7d32","#1565c0","#c62828","#6a1b9a","#ef6c00","#00838f","#ad1457","#558b2f","#4527a0","#d84315","#00695c","#37474f"];
+
+  var state = { teams: [], points: { eagle: 8, birdie: 5, par: 2, bogey: 1 } };
+
+  function $(id) { return document.getElementById(id); }
+  function intVal(el, def) {
+    var v = parseInt(el.value, 10);
+    return isNaN(v) ? def : v;
+  }
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+  function readPoints() {
+    state.points = {
+      eagle: Math.max(0, intVal($("ptEagle"), 8)),
+      birdie: Math.max(0, intVal($("ptBirdie"), 5)),
+      par: Math.max(0, intVal($("ptPar"), 2)),
+      bogey: Math.max(0, intVal($("ptBogey"), 1))
+    };
+  }
+
+  // 현재 화면 입력값을 state로 수집 (있을 때만)
+  function harvestInputs() {
+    var teamEls = document.querySelectorAll(".team");
+    teamEls.forEach(function (tEl, ti) {
+      if (!state.teams[ti]) return;
+      var nameEl = tEl.querySelector(".team-name");
+      if (nameEl) state.teams[ti].name = nameEl.value;
+      var memEls = tEl.querySelectorAll(".member");
+      memEls.forEach(function (mEl, mi) {
+        var m = state.teams[ti].members[mi];
+        if (!m) return;
+        m.name = mEl.querySelector(".member-name").value;
+        m.eagle = Math.max(0, intVal(mEl.querySelector(".in-eagle"), 0));
+        m.birdie = Math.max(0, intVal(mEl.querySelector(".in-birdie"), 0));
+        m.par = Math.max(0, intVal(mEl.querySelector(".in-par"), 0));
+        m.bogey = Math.max(0, intVal(mEl.querySelector(".in-bogey"), 0));
+      });
+    });
+  }
+
+  function buildTeams() {
+    var nTeams = clamp(intVal($("cfgTeams"), 2), 2, 12);
+    var nMembers = clamp(intVal($("cfgMembers"), 4), 1, 12);
+    $("cfgTeams").value = nTeams;
+    $("cfgMembers").value = nMembers;
+    readPoints();
+
+    var teams = [];
+    for (var t = 0; t < nTeams; t++) {
+      var members = [];
+      for (var m = 0; m < nMembers; m++) {
+        members.push({ name: "", eagle: 0, birdie: 0, par: 0, bogey: 0 });
+      }
+      teams.push({ name: "팀 " + (t + 1), members: members });
+    }
+    state.teams = teams;
+    renderTeams();
+    $("result").style.display = "none";
+    $("calcWrap").style.display = "block";
+    $("teams").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function memberScore(m) {
+    return m.eagle * state.points.eagle + m.birdie * state.points.birdie +
+           m.par * state.points.par + m.bogey * state.points.bogey;
+  }
+  function teamTotal(team) {
+    return team.members.reduce(function (s, m) { return s + memberScore(m); }, 0);
+  }
+
+  function statBlock(cls, color, label, val) {
+    return '<div class="stat">' +
+      '<label><span class="dot" style="background:' + color + '"></span>' + label + '</label>' +
+      '<input type="number" class="' + cls + '" min="0" inputmode="numeric" value="' + val + '" />' +
+      '</div>';
+  }
+
+  function renderTeams() {
+    var host = $("teams");
+    host.innerHTML = "";
+    state.teams.forEach(function (team, ti) {
+      var color = TEAM_COLORS[ti % TEAM_COLORS.length];
+      var teamEl = document.createElement("div");
+      teamEl.className = "team";
+
+      var membersHTML = team.members.map(function (m, mi) {
+        return '<div class="member" data-mi="' + mi + '">' +
+          '<div class="member-top">' +
+            '<input type="text" class="member-name" placeholder="이름 ' + (mi + 1) + '" value="' + escapeAttr(m.name) + '" />' +
+            '<span class="member-score">0점</span>' +
+            '<button class="x-btn" data-act="delMember" title="삭제">×</button>' +
+          '</div>' +
+          '<div class="stats">' +
+            statBlock("in-eagle", "#d4a017", "이글", m.eagle) +
+            statBlock("in-birdie", "#1976d2", "버디", m.birdie) +
+            statBlock("in-par", "#2e7d32", "파", m.par) +
+            statBlock("in-bogey", "#7b8a99", "보기", m.bogey) +
+          '</div>' +
+        '</div>';
+      }).join("");
+
+      teamEl.innerHTML =
+        '<div class="team-head">' +
+          '<span class="badge" style="background:' + color + '">' + (ti + 1) + '</span>' +
+          '<input type="text" class="team-name" value="' + escapeAttr(team.name) + '" />' +
+          '<span class="team-total">0점</span>' +
+        '</div>' +
+        '<div class="team-body">' +
+          membersHTML +
+          '<div class="row-btns">' +
+            '<button class="btn secondary small" data-act="addMember">+ 인원 추가</button>' +
+          '</div>' +
+        '</div>';
+
+      host.appendChild(teamEl);
+    });
+    attachLiveUpdates();
+    updateLiveTotals();
+  }
+
+  function escapeAttr(s) {
+    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function attachLiveUpdates() {
+    var host = $("teams");
+    host.oninput = function () { harvestInputs(); updateLiveTotals(); };
+    host.onclick = function (e) {
+      var btn = e.target.closest("button[data-act]");
+      if (!btn) return;
+      var act = btn.getAttribute("data-act");
+      var teamEl = btn.closest(".team");
+      var teamEls = Array.prototype.slice.call(document.querySelectorAll(".team"));
+      var ti = teamEls.indexOf(teamEl);
+      if (ti < 0) return;
+      harvestInputs();
+      if (act === "addMember") {
+        state.teams[ti].members.push({ name: "", eagle: 0, birdie: 0, par: 0, bogey: 0 });
+        renderTeams();
+      } else if (act === "delMember") {
+        var memEl = btn.closest(".member");
+        var mi = parseInt(memEl.getAttribute("data-mi"), 10);
+        if (state.teams[ti].members.length <= 1) { alert("팀에는 최소 1명이 필요합니다."); return; }
+        state.teams[ti].members.splice(mi, 1);
+        renderTeams();
+      }
+    };
+  }
+
+  function updateLiveTotals() {
+    var teamEls = document.querySelectorAll(".team");
+    teamEls.forEach(function (tEl, ti) {
+      var team = state.teams[ti];
+      if (!team) return;
+      var memEls = tEl.querySelectorAll(".member");
+      memEls.forEach(function (mEl, mi) {
+        var sc = memberScore(team.members[mi]);
+        var scEl = mEl.querySelector(".member-score");
+        if (scEl) scEl.textContent = sc + "점";
+      });
+      var totEl = tEl.querySelector(".team-total");
+      if (totEl) totEl.textContent = teamTotal(team) + "점";
+    });
+  }
+
+  function calculate() {
+    harvestInputs();
+    readPoints();
+    updateLiveTotals();
+
+    var results = state.teams.map(function (team, ti) {
+      return {
+        name: team.name || ("팀 " + (ti + 1)),
+        index: ti,
+        total: teamTotal(team),
+        members: team.members.map(function (m, mi) {
+          return { name: m.name || ("이름 " + (mi + 1)), score: memberScore(m) };
+        })
+      };
+    });
+
+    results.sort(function (a, b) { return b.total - a.total; });
+
+    var topScore = results.length ? results[0].total : 0;
+    var winners = results.filter(function (r) { return r.total === topScore; });
+    var isTie = winners.length > 1;
+
+    var banner = $("winnerBanner");
+    if (isTie) {
+      banner.innerHTML = "🤝 무승부! " + winners.map(function (w) { return escapeHTML(w.name); }).join(", ") + " (" + topScore + "점)";
+    } else {
+      banner.innerHTML = "🏆 우승: <strong>" + escapeHTML(winners[0].name) + "</strong> (" + topScore + "점)";
+    }
+
+    var medals = ["🥇", "🥈", "🥉"];
+    var podium = $("podium");
+    podium.innerHTML = "";
+    var rank = 0, prevScore = null;
+    results.forEach(function (r, i) {
+      if (prevScore === null || r.total !== prevScore) { rank = i + 1; prevScore = r.total; }
+      var color = TEAM_COLORS[r.index % TEAM_COLORS.length];
+      var isWin = r.total === topScore;
+      var rankIcon = rank <= 3 ? medals[rank - 1] : (rank + "위");
+      var memberLine = r.members.map(function (m) { return escapeHTML(m.name) + " " + m.score + "점"; }).join(" · ");
+      var row = document.createElement("div");
+      row.className = "res-row" + (isWin ? (isTie ? " tie-win" : " win") : "");
+      row.innerHTML =
+        '<div class="res-rank">' + rankIcon + '</div>' +
+        '<div class="res-info">' +
+          '<div class="res-name"><span class="dot" style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + color + '"></span>' + escapeHTML(r.name) + '</div>' +
+          '<div class="res-members">' + memberLine + '</div>' +
+        '</div>' +
+        '<div class="res-pts">' + r.total + '<span> 점</span></div>';
+      podium.appendChild(row);
+    });
+
+    $("result").style.display = "block";
+    $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function escapeHTML(s) {
+    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // 점수 기준이 바뀌면 실시간 반영
+  ["ptEagle", "ptBirdie", "ptPar", "ptBogey"].forEach(function (id) {
+    $(id).addEventListener("input", function () {
+      readPoints();
+      if (state.teams.length) { harvestInputs(); updateLiveTotals(); }
+    });
+  });
+
+  $("buildBtn").addEventListener("click", buildTeams);
+  $("calcBtn").addEventListener("click", calculate);
+  $("editBtn").addEventListener("click", function () {
+    $("result").style.display = "none";
+    $("teams").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  // 초기 구성
+  buildTeams();
+})();
+</script>
+</body>
+</html>
